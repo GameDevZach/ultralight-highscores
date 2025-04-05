@@ -1,0 +1,66 @@
+// Utilities
+const fs = require("fs");
+
+// Init the database
+const dbFile = "./.data/scorelator.db";
+const exists = fs.existsSync(dbFile);
+const sqlite3 = require("sqlite3").verbose();
+const dbWrapper = require("sqlite");
+let db;
+
+dbWrapper.open({
+    filename: dbFile,
+    driver: sqlite3.Database
+})
+.then(async dataBase => {
+    db = dataBase;
+
+    try{
+        if(!exists){
+            console.log("Initialize DB...");
+            await db.run(
+                "CREATE TABLE Highscores (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, score INTEGER, created_dt INTEGER)"
+            );
+
+            await db.run(
+                "CREATE INDEX score_ind ON Highscores (score, username)"
+            );
+
+            await db.run(
+                "CREATE INDEX dt_ind ON Highscores (created_dt, score, username)"
+            );
+
+            await db.run(
+                "CREATE TABLE Logs (id INTEGER PRIMARY KEY AUTOINCREMENT, log TEXT, dt DATETIME)"
+            );
+        }else{
+            console.log("DB Exists... continuing");
+        }
+    }catch(e){
+        console.error(e);
+    }
+});
+
+module.exports = {
+    getTopScores: async (limit) => {
+        try {
+            return await db.all("SELECT * from Highscores ORDER BY score DESC LIMIT ?", [limit]);
+        } catch(e){
+            console.error(e);
+        }
+    },
+
+    submitScore: async (username, score) => {
+        try{
+            const result =  await db.run("INSERT INTO Highscores (username, score, created_dt) VALUES( ? , ?, ? );",[
+                username,
+                score,
+                Math.floor(Date.now().valueOf()/1000)
+            ]);
+            const beatenBy = await db.get("SELECT count(*) from Highscores WHERE score > (SELECT score FROM Highscores WHERE id = ? );", [ result.lastID ]);
+            return ({ ...result, place: beatenBy["count(*)"] + 1});
+        }catch(e){
+            console.error(e);
+        }
+    }
+}

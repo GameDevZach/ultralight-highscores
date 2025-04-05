@@ -1,0 +1,15 @@
+POST http://localhost:3001/subscore HTTP/1.1
+content-type: application/json
+
+{
+    "username": "ZACLONGNAMETOOLONGINFACT",
+    "newscore": 1200
+}
+ 
+###
+
+GET http://localhost:3001/scores HTTP/1.1
+content-type: application/json 
+
+
+### REST Client for Visual Studio Code by Huachao Mao is recommended for easy use of these test routes
