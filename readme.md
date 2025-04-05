@@ -19,3 +19,8 @@ Make your local .env file by copying sample.env
 The server can be started via console with "npm run start" from the project root.
 
 The test folder contains Request markup that can be used with the VSCode Extension "Rest Client".
+
+
+Copyright 2025 :: Zachary Helm :: CC-BY 
+
+_Leaving this readme in your Glitch remix is enough for attribution. Have fun :)_

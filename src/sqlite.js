@@ -44,7 +44,7 @@ dbWrapper.open({
 module.exports = {
     getTopScores: async (limit) => {
         try {
-            return await db.all("SELECT * from Highscores ORDER BY score DESC LIMIT ?", [limit]);
+            return await db.all("SELECT score, username FROM Highscores ORDER BY score DESC LIMIT ?", [limit]);
         } catch(e){
             console.error(e);
         }
@@ -57,7 +57,7 @@ module.exports = {
                 score,
                 Math.floor(Date.now().valueOf()/1000)
             ]);
-            const beatenBy = await db.get("SELECT count(*) from Highscores WHERE score > (SELECT score FROM Highscores WHERE id = ? );", [ result.lastID ]);
+            const beatenBy = await db.get("SELECT count(*) FROM Highscores WHERE score > (SELECT score FROM Highscores WHERE id = ? );", [ result.lastID ]);
             return ({ ...result, place: beatenBy["count(*)"] + 1});
         }catch(e){
             console.error(e);

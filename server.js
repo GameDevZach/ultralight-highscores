@@ -33,7 +33,11 @@ fastify.post("/subscore", async (request, reply) => {
  * limit (the number of top highscores to return)
  */
 fastify.get("/scores", async (request, reply) => {
-  const result = await db.getTopScores();
+  
+  let { limit=100 } = request.query;
+  limit = Math.min(process.env.MAX_SCORES_RETURNED, limit);
+
+  const result = await db.getTopScores(limit);
   console.log(result);
 
   return reply.send({ highscores: result });
@@ -44,7 +48,11 @@ fastify.get("/scores", async (request, reply) => {
  * 
  * JSON Body Options
  */
-fastify.get("/contiguous")
+fastify.get("/contiguous", async (request, reply) => {
+  // TODO
+
+  return reply.send({ message: "Not yet implemented"})
+})
   
 
 // Run the server and report out to the logs

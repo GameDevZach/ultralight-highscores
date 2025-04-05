@@ -2,14 +2,29 @@ POST http://localhost:3001/subscore HTTP/1.1
 content-type: application/json
 
 {
-    "username": "ZACLONGNAMETOOLONGINFACT",
+    "username": "ZAC",
     "newscore": 1200
+}
+
+###
+# Username Truncation
+POST http://localhost:3001/subscore HTTP/1.1
+content-type: application/json
+
+{
+    "username": "ZACLONGNAMETOOLONGINFACT",
+    "newscore": 10
 }
  
 ###
-
+# Default GET top 100 highscores
 GET http://localhost:3001/scores HTTP/1.1
 content-type: application/json 
 
+
+###
+# Limit top scores request to x highest scores
+GET http://localhost:3001/scores?limit=2 HTTP/1.1
+content-type: application/json 
 
 ### REST Client for Visual Studio Code by Huachao Mao is recommended for easy use of these test routes
