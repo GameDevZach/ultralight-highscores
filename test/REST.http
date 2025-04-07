@@ -3,7 +3,7 @@ content-type: application/json
 
 {
     "username": "ZAC",
-    "newscore": 1200
+    "newscore": 50
 }
 
 ###
@@ -15,6 +15,12 @@ content-type: application/json
     "username": "ZACLONGNAMETOOLONGINFACT",
     "newscore": 10
 }
+
+###
+# Get Contiguous, lastID is the target ID so choose carefully
+GET http://localhost:3001/contiguous?limit=9&lastID=10 HTTP/1.1
+content-type: application/json
+
  
 ###
 # Default GET top 100 highscores

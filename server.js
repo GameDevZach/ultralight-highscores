@@ -38,7 +38,6 @@ fastify.get("/scores", async (request, reply) => {
   limit = Math.min(process.env.MAX_SCORES_RETURNED, limit);
 
   const result = await db.getTopScores(limit);
-  console.log(result);
 
   return reply.send({ highscores: result });
 })
@@ -49,9 +48,12 @@ fastify.get("/scores", async (request, reply) => {
  * JSON Body Options
  */
 fastify.get("/contiguous", async (request, reply) => {
-  // TODO
+  let { lastID, limit=11 } = request.query;
+  limit = Math.min(process.env.MAX_SCORES_RETURNED, limit);
 
-  return reply.send({ message: "Not yet implemented"})
+  const result = await db.getContiguousScores(lastID, limit);
+
+  return reply.send(result)
 })
   
 

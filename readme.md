@@ -16,6 +16,8 @@ Install npm packs locally from the project root with "npm install".
 
 Make your local .env file by copying sample.env
 
+Create a folder called /.data/ so that the database has a directory to go in.
+
 The server can be started via console with "npm run start" from the project root.
 
 The test folder contains Request markup that can be used with the VSCode Extension "Rest Client".

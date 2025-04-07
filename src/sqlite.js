@@ -50,6 +50,18 @@ module.exports = {
         }
     },
 
+    getContiguousScores: async (centerID, limit) => {
+        try{
+            const halfLimit = Math.ceil(limit / 2);
+            const beatenBy = (await db.get("SELECT count(*) FROM Highscores WHERE score > (SELECT score FROM Highscores WHERE id = ? );", [ centerID ]))["count(*)"] + 1;
+            const offset = Math.max(0, beatenBy - halfLimit);
+            const result = await db.all("SELECT id, score, username FROM Highscores ORDER BY score DESC LIMIT ? OFFSET ?", [limit, offset]);
+            return { highscores: result, offset };
+        }catch(e){
+            console.error(e);
+        }
+    },
+
     submitScore: async (username, score) => {
         try{
             const result =  await db.run("INSERT INTO Highscores (username, score, created_dt) VALUES( ? , ?, ? );",[
