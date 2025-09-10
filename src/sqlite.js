@@ -62,6 +62,22 @@ module.exports = {
         }
     },
 
+    randomizeDB: async (amount) => {
+        const rndAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        try{
+            for(let i = 0; i < amount; i++){
+                await db.run("INSERT INTO Highscores (username, score, created_dt) VALUES( ? , ?, ? );",[
+                    rndAlphabet[Math.floor(Math.random()*40)]+rndAlphabet[Math.floor(Math.random()*40)]+rndAlphabet[Math.floor(Math.random()*40)],
+                    Math.floor(Math.random() * 99999),
+                    Math.floor(Date.now().valueOf()/1000)
+                ]);
+            }
+        }catch(e){
+            console.error(e);
+        }
+    },
+
     submitScore: async (username, score) => {
         try{
             const result =  await db.run("INSERT INTO Highscores (username, score, created_dt) VALUES( ? , ?, ? );",[

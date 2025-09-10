@@ -17,12 +17,14 @@ const db = require("./src/" + data.database);
  * Post route for score
  */
 fastify.post("/subscore", async (request, reply) => {
+    const startTime = Date.now().valueOf();
     const { username, newscore } = request.body;
   
     const truncatedName = username.substring(0,process.env.CHAR_LIMIT);
 
     result = await db.submitScore(truncatedName, newscore);
     
+    console.log("POST score took " + (Date.now().valueOf()-startTime) + "ms");
     return reply.send({ newID: result.lastID, username: truncatedName, place: result.place });
 });
 
@@ -33,27 +35,47 @@ fastify.post("/subscore", async (request, reply) => {
  * limit (the number of top highscores to return)
  */
 fastify.get("/scores", async (request, reply) => {
-  
+  const startTime = Date.now().valueOf();
   let { limit=100 } = request.query;
   limit = Math.min(process.env.MAX_SCORES_RETURNED, limit);
 
   const result = await db.getTopScores(limit);
 
+  console.log("GET scores with " + result.length + " results took " + (Date.now().valueOf()-startTime) + "ms");
   return reply.send({ highscores: result });
 })
 
 /**
  * GET contiguous scores
  * 
- * JSON Body Options
  */
 fastify.get("/contiguous", async (request, reply) => {
+  const startTime = Date.now().valueOf();
   let { lastID, limit=11 } = request.query;
   limit = Math.min(process.env.MAX_SCORES_RETURNED, limit);
 
   const result = await db.getContiguousScores(lastID, limit);
 
+  console.log("GET contiguous with " + result.highscores.length + " results took " + (Date.now().valueOf()-startTime) + "ms");
   return reply.send(result)
+})
+
+/**
+ * POST Randomizer Data
+ * 
+ * JSON Body Options
+ * key: admin key
+ * amount: number of random highscores you want to generate
+ */
+fastify.post("/admin/randomizeDB", async (request, reply) => {
+  const startTime = Date.now().valueOf(); 
+
+  let { key, amount } = request.body;
+  if(key != process.env.ADMIN_KEY)return reply.send({ msg: "Ah ah ah, not without the magic word"});
+  await db.randomizeDB(amount);
+
+  console.log("POST randomizer data took " + (Date.now().valueOf()-startTime) + "ms");
+  return reply.send({ msg: "You done F'd up the database, ready to stress test" });
 })
   
 

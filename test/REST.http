@@ -3,7 +3,7 @@ content-type: application/json
 
 {
     "username": "ZAC",
-    "newscore": 50
+    "newscore": {{$randomInt 1 9999}}
 }
 
 ###
@@ -32,5 +32,16 @@ content-type: application/json
 # Limit top scores request to x highest scores
 GET http://localhost:3001/scores?limit=2 HTTP/1.1
 content-type: application/json 
+
+###
+# Randomize for stress test
+POST http://localhost:3001/admin/randomizeDB HTTP/1.1
+content-type: application/json
+
+{
+    "amount": 10000,
+    "key": "put key here, this puts tons of random data in the db, do not use live"
+}
+
 
 ### REST Client for Visual Studio Code by Huachao Mao is recommended for easy use of these test routes
