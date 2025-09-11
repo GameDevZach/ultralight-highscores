@@ -11,7 +11,7 @@ Use Glitch's remix feature to deploy immediately!
 
 Copy the variables from sample.env into env and write your own keys. The client key will be used by your game and the admin key you keep secret, to use the maintenance endpoints yourself (whenever those get developed).
 
-## Developing locally
+## Running & Developing locally
 Install npm packs locally from the project root with "npm install".
 
 Make your local .env file by copying sample.env
