@@ -1,3 +1,4 @@
+
 // Utilities we need
 require('dotenv').config();
 const fs = require("fs");
@@ -12,6 +13,10 @@ const fastify = require("fastify")({
   // We use a module for handling database operations in /src
 const data = require("./src/data.json");
 const db = require("./src/" + data.database);
+
+const { AccountRoutes } = require('./src/Auth/account');
+
+AccountRoutes(fastify, db);
 
 /**
  * Post route for score

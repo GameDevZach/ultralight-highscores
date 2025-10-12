@@ -19,20 +19,37 @@ dbWrapper.open({
         if(!exists){
             console.log("Initialize DB...");
             await db.run(
-                "CREATE TABLE Highscores (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, score INTEGER, created_dt INTEGER)"
+                "CREATE TABLE Highscores (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, score INTEGER, created_dt INTEGER)"
             );
 
             await db.run(
-                "CREATE INDEX score_ind ON Highscores (score, username)"
+                "CREATE INDEX score_ind ON Highscores (score, user_id)"
             );
 
             await db.run(
-                "CREATE INDEX dt_ind ON Highscores (created_dt, score, username)"
+                "CREATE INDEX ScoreDateIndex ON Highscores (created_dt, score, user_id)"
             );
+
+            await db.run(
+                "CREATE TABLE User (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, email TEXT, created_dt INTEGER)"
+            )
+
+            await db.run(
+                "CREATE TABLE Passcode (id INTEGER PRIMARY KEY, hashed_pass TEXT)"
+            )
+
+            await db.run(
+                "CREATE TABLE AuthToken (id INTEGER PRIMARY KEY, user_id INTEGER, token TEXT, created_dt INTEGER, exp INTEGER)"
+            )
+
+            await db.run(
+                "CREATE INDEX TokenDateIndex ON AuthToken (exp)"
+            )
 
             await db.run(
                 "CREATE TABLE Logs (id INTEGER PRIMARY KEY AUTOINCREMENT, log TEXT, dt DATETIME)"
             );
+
         }else{
             console.log("DB Exists... continuing");
         }
@@ -44,8 +61,32 @@ dbWrapper.open({
 module.exports = {
     getTopScores: async (limit) => {
         try {
-            return await db.all("SELECT score, username FROM Highscores ORDER BY score DESC LIMIT ?", [limit]);
+            return await db.all("SELECT score, user_id FROM Highscores ORDER BY score DESC LIMIT ?", [limit]);
         } catch(e){
+            console.error(e);
+        }
+    },
+
+    getUserByName: async (username) => {
+        try {
+            return await db.get("SELECT id, username FROM User WHERE username = ?", [username]);
+        }catch(e){
+            console.error(e);
+        }
+    },
+
+    getUsers: async () => {
+        try{
+            return await db.get("SELECT id, username, email, created_dt FROM User")
+        }catch(e){
+            console.error(e);
+        }
+    },
+
+    getHash: async (user_id) => {
+        try {
+            return await db.get("SELECT id, hashed_pass FROM Passcode WHERE id = ?", [user_id]);
+        }catch(e){
             console.error(e);
         }
     },
@@ -55,7 +96,7 @@ module.exports = {
             const halfLimit = Math.ceil(limit / 2);
             const beatenBy = (await db.get("SELECT count(*) FROM Highscores WHERE score > (SELECT score FROM Highscores WHERE id = ? );", [ centerID ]))["count(*)"] + 1;
             const offset = Math.max(0, beatenBy - halfLimit);
-            const result = await db.all("SELECT id, score, username FROM Highscores ORDER BY score DESC LIMIT ? OFFSET ?", [limit, offset]);
+            const result = await db.all("SELECT id, score, user_id FROM Highscores ORDER BY score DESC LIMIT ? OFFSET ?", [limit, offset]);
             return { highscores: result, offset };
         }catch(e){
             console.error(e);
@@ -67,7 +108,7 @@ module.exports = {
 
         try{
             for(let i = 0; i < amount; i++){
-                await db.run("INSERT INTO Highscores (username, score, created_dt) VALUES( ? , ?, ? );",[
+                await db.run("INSERT INTO Highscores (user_id, score, created_dt) VALUES( ? , ?, ? );",[
                     rndAlphabet[Math.floor(Math.random()*40)]+rndAlphabet[Math.floor(Math.random()*40)]+rndAlphabet[Math.floor(Math.random()*40)],
                     Math.floor(Math.random() * 99999),
                     Math.floor(Date.now().valueOf()/1000)
@@ -78,10 +119,10 @@ module.exports = {
         }
     },
 
-    submitScore: async (username, score) => {
+    submitScore: async (user_id, score) => {
         try{
-            const result =  await db.run("INSERT INTO Highscores (username, score, created_dt) VALUES( ? , ?, ? );",[
-                username,
+            const result =  await db.run("INSERT INTO Highscores (user_id, score, created_dt) VALUES( ? , ?, ? );",[
+                user_id,
                 score,
                 Math.floor(Date.now().valueOf()/1000)
             ]);
@@ -90,5 +131,23 @@ module.exports = {
         }catch(e){
             console.error(e);
         }
-    }
+    },
+
+    createAccount: async (username, email, hashedPass) => {
+        try{
+            const result =  await db.run("INSERT INTO User (username, email, created_dt) VALUES( ? , ?, ? );",[
+                username,
+                email,
+                Math.floor(Date.now().valueOf()/1000)
+            ]);
+            console.log(result);
+            const passResult = await db.run("INSERT INTO Passcode (id, hashed_pass) VALUES( ?, ? );",[
+                result.id,
+                hashedPass
+            ]);
+            return ({ ...result});
+        }catch(e){
+            console.error(e);
+        }
+    },
 }

@@ -1,0 +1,25 @@
+POST http://localhost:3001/accounts HTTP/1.1
+content-type: application/json
+
+{
+    "username": "GameDevZach",
+    "email": "zac1790@gmail.com",
+    "password": "a123abc"
+}
+###
+
+
+POST http://localhost:3001/login
+content-type: application/json
+
+{
+    "username": "GameDevZach",
+    "password": "a123abc"
+}
+
+###
+
+GET http://localhost:3001/allaccounts
+Content-Type: application/json
+
+###
