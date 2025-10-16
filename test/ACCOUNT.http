@@ -8,13 +8,33 @@ content-type: application/json
 }
 ###
 
+POST http://localhost:3001/accounts HTTP/1.1
+content-type: application/json
+
+{
+    "username": "AltAccount",
+    "email": "zac17902@gmail.com",
+    "password": "a123abcsadf"
+}
+###
+
+
 
 POST http://localhost:3001/login
 content-type: application/json
 
 {
+    "username": "AltAccount",
+    "password": "a123abcsadf"
+}
+
+### 
+POST http://localhost:3001/login
+content-type: application/json
+
+{
     "username": "GameDevZach",
-    "password": "a123abc"
+    "password": "sdhdfgsdfg123123"
 }
 
 ###

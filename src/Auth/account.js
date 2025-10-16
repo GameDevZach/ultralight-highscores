@@ -6,12 +6,12 @@ function AccountRoutes(fastify,db){
      * Post new user stuffs
      */
     fastify.post("/accounts", async (request, reply) => {
-        const { username, pass, email } = request.body;
+        const { username, password, email } = request.body;
     
         if(username.length > process.env.CHAR_LIMIT)return reply.send({ error: 'Name too long', message: 'Name too long', code: 400, statusCode: 400 });
 
         
-        const hashedPass = await HashPass(pass);
+        const hashedPass = await HashPass(password);
 
         result = await db.createAccount(username, email, hashedPass);
         
@@ -22,13 +22,11 @@ function AccountRoutes(fastify,db){
      * Post login
      */
     fastify.post("/login", async (request, reply) => {
-        const { username, pass } = request.body;
+        const { username, password } = request.body;
         const res = await db.getUserByName(username);
-        console.log(res);
         const hashres = await db.getHash(res.id);
-        console.log(hashres);
-        const verified = await VerifyPass(String(pass), hashres.hashed_pass);
-        console.log("Verified?:" + verified ? " Yes" : " No");
+        const verified = await VerifyPass(String(password), hashres.hashed_pass);
+        console.log("Verified?",verified);
     })
 
     /** 

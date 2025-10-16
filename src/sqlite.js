@@ -77,7 +77,7 @@ module.exports = {
 
     getUsers: async () => {
         try{
-            return await db.get("SELECT id, username, email, created_dt FROM User")
+            return await db.all("SELECT id, username, email, created_dt FROM User")
         }catch(e){
             console.error(e);
         }
