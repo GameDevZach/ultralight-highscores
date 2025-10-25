@@ -7,6 +7,7 @@ const exists = fs.existsSync(dbFile);
 const sqlite3 = require("sqlite3").verbose();
 const dbWrapper = require("sqlite");
 const dbSchema = require("./dbSchema.js");
+const { GetNowInSeconds } = require("../Utils/datetime.util.js");
 let db;
 
 dbWrapper.open({
@@ -111,7 +112,7 @@ module.exports = {
             const result =  await db.run("INSERT INTO Highscores (user_id, score, created_dt) VALUES( ? , ?, ? );",[
                 user_id,
                 score,
-                Math.floor(Date.now().valueOf()/1000)
+                GetNowInSeconds()
             ]);
             const beatenBy = await db.get("SELECT count(*) FROM Highscores WHERE score > (SELECT score FROM Highscores WHERE id = ? );", [ result.lastID ]);
             return ({ ...result, place: beatenBy["count(*)"] + 1});

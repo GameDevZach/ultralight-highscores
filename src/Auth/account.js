@@ -1,3 +1,4 @@
+const { MakeTokenObject } = require('./tokenizer.js');
 
 
 function AccountRoutes(fastify,db){
@@ -23,10 +24,15 @@ function AccountRoutes(fastify,db){
      */
     fastify.post("/login", async (request, reply) => {
         const { username, password } = request.body;
-        const res = await db.getUserByName(username);
-        const hashres = await db.getHash(res.id);
+        const user = await db.getUserByName(username);
+        const hashres = await db.getHash(user.id);
         const verified = await VerifyPass(String(password), hashres.hashed_pass);
-        console.log("Verified?",verified);
+        if(verified){
+            const tokenObj = MakeTokenObject(user.id);
+            return reply.send(tokenObj); // payload is also outside of token for client awareness
+        }else{
+            throw new Error("Password does not match!");
+        }
     })
 
     /** 

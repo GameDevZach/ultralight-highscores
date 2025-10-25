@@ -20,12 +20,10 @@ test("Test Database Initialization", async () => {
         try{
             console.log("Initialize DB...");
             for(const schemaStatement of dbSchema.init){
-                console.log(`Run: ${schemaStatement}`);
                 await db.run(schemaStatement);
             };
             await db.run("INSERT INTO DBEvents (version, msg) VALUES( ?, ? );",[
                 dbSchema.init.length,
-                `Created DB version ${dbSchema.init.length} from scratch.`
             ]);
             await db.close();
             await fs.unlink(TESTDB_NAME, () => {

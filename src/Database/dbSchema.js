@@ -6,7 +6,7 @@ module.exports = {
         "CREATE INDEX ScoreDateIndex ON Highscores (created_dt, score, user_id)",
         "CREATE TABLE User (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, email TEXT, created_dt INTEGER)",
         "CREATE TABLE Passcode (id INTEGER PRIMARY KEY, hashed_pass TEXT)",
-        "CREATE TABLE AuthToken (id INTEGER PRIMARY KEY, user_id INTEGER, token TEXT, created_dt INTEGER, exp INTEGER)",
+        "CREATE TABLE AuthToken (id INTEGER PRIMARY KEY, user_id INTEGER, token TEXT, created_dt INTEGER, exp INTEGER, rand TEXT)",
         "CREATE INDEX TokenDateIndex ON AuthToken (exp)",
         "CREATE TABLE Logs (id INTEGER PRIMARY KEY AUTOINCREMENT, log TEXT, dt DATETIME)",
         "CREATE INDEX JWTLookupIndex ON AuthToken (user_id, token)",
