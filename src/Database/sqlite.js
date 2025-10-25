@@ -6,6 +6,7 @@ const dbFile = "./.data/scorelator.db";
 const exists = fs.existsSync(dbFile);
 const sqlite3 = require("sqlite3").verbose();
 const dbWrapper = require("sqlite");
+const dbSchema = require("./dbSchema.js");
 let db;
 
 dbWrapper.open({
@@ -14,44 +15,30 @@ dbWrapper.open({
 })
 .then(async dataBase => {
     db = dataBase;
-
     try{
         if(!exists){
             console.log("Initialize DB...");
-            await db.run(
-                "CREATE TABLE Highscores (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, score INTEGER, created_dt INTEGER)"
-            );
-
-            await db.run(
-                "CREATE INDEX score_ind ON Highscores (score, user_id)"
-            );
-
-            await db.run(
-                "CREATE INDEX ScoreDateIndex ON Highscores (created_dt, score, user_id)"
-            );
-
-            await db.run(
-                "CREATE TABLE User (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, email TEXT, created_dt INTEGER)"
-            )
-
-            await db.run(
-                "CREATE TABLE Passcode (id INTEGER PRIMARY KEY, hashed_pass TEXT)"
-            )
-
-            await db.run(
-                "CREATE TABLE AuthToken (id INTEGER PRIMARY KEY, user_id INTEGER, token TEXT, created_dt INTEGER, exp INTEGER)"
-            )
-
-            await db.run(
-                "CREATE INDEX TokenDateIndex ON AuthToken (exp)"
-            )
-
-            await db.run(
-                "CREATE TABLE Logs (id INTEGER PRIMARY KEY AUTOINCREMENT, log TEXT, dt DATETIME)"
-            );
-
+            for(const schemaStatement of dbSchema.init){
+                console.log(`Run: ${schemaStatement}`);
+                await db.run(schemaStatement);
+            };
+            await db.run("INSERT INTO DBEvents (version, msg) VALUES( ?, ? );",[
+                dbSchema.init.length,
+                `Created DB version ${dbSchema.init.length} from scratch.`
+            ]);
         }else{
-            console.log("DB Exists... continuing");
+            console.log("DB Exists... check version for schema changes");
+            const curVersion = (await db.get("SELECT id, version, msg FROM DBEvents ORDER BY version DESC LIMIT ?", [1])).version;
+            if(curVersion < dbSchema.init.length){
+                console.log(`DB Schema updating to new version ${dbSchema.init.length} from old version ${curVersion}`);
+                for(let i = curVersion; i < dbSchema.init.length; i++){
+                    console.log(`Run: ${dbSchema.init[i]}`);
+                    await db.run(dbSchema.init[i]);
+                }
+                console.log(`DB Schema update complete`);
+            }else{
+                console.log(`Matched version: ${curVersion}`);
+            }
         }
     }catch(e){
         console.error(e);

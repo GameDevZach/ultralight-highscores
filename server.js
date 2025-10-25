@@ -11,8 +11,8 @@ const fastify = require("fastify")({
   });
 
   // We use a module for handling database operations in /src
-const data = require("./src/data.json");
-const db = require("./src/" + data.database);
+const data = require("./src/Database/data.json");
+const db = require("./src/Database/" + data.database);
 
 const { AccountRoutes } = require('./src/Auth/account');
 
